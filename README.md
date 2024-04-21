@@ -80,3 +80,36 @@ docker logs <container-name>
 docker stop <container-id>
 docker container rm <container-id>4
 ```
+
+## 1.2. Managing Local Docker Images
+
+### 1.2.1. Pulling an Image
+
+> for pulling an image:
+```console
+dokcer pull <image-name>:<image-version (optional) >
+```
+
+### 1.2.2. Listing Images
+
+> for listing images:
+```console
+docker images
+```
+
+### 1.2.3. Removing Images
+
+> for removing images:
+```console
+docker image rm <image-name>
+```
+
+> for remove all stopped containers:
+```console
+docker container prune
+```
+
+> for remove all unused images
+```console
+docker image prune -a
+```
