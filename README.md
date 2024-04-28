@@ -9,7 +9,7 @@ Docker Practices
 > hello-docker: the tag/name
 
 ```console
-docker build -t hello-docker
+docker build -t hello-docker .
 ```
 
 ### 1.1.2. Check Image List
@@ -24,9 +24,17 @@ docker image ls
 docker run hello-docker
 ```
 
+```console
+docker container create --name <container-name> <image-name>
+docker container start <container-name>
+docker container exec <container-name> </bin/bash/script>
+```
+
 > for interactive mode:
 
 ```console
+docker container exec -i -t ubuntu /bin/bash
+# atau
 docker run -it ubuntu
 exit
 ```
@@ -41,7 +49,7 @@ docker run -d postgree
 
 ```console
 docker run --name <container-name> <image-name>
-docker stop <container-name>
+docker stop <container-name> / docker container stop <container-name>
 ```
 
 ### 1.1.4. Pull Image
@@ -329,6 +337,19 @@ ENV MODE production
 docker run --env <key>=<value> <image-name>
 docker run --env POSTGRES_USER=test_db --env POSTGRES_PASSWORD=test_db postgres
 ```
+
+## 1.9. Container Resource Limit
+
+```console
+docker container stats
+```
+
+## 1.10. Docker Container Resource Limit
+
+* When we are creating the container we need to specify the `--memory` argument, and followed by `k` (kilo), `m` (mega), `g` (giga), example: `--memory 1g`
+* `--cpu` argument, example: `--cpu 1.5` it will be used 1 half of our cpu
+
+
 
 
 
