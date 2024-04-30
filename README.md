@@ -349,6 +349,33 @@ docker container stats
 * When we are creating the container we need to specify the `--memory` argument, and followed by `k` (kilo), `m` (mega), `g` (giga), example: `--memory 1g`
 * `--cpu` argument, example: `--cpu 1.5` it will be used 1 half of our cpu
 
+```console
+docker container create --name smallnginx --publish 8080:80 --memory 100m --cpu 0.5 nginx:stable-perl
+docker container start smallnginx
+docker container stats
+```
+
+## 1.11. Container Port
+
+* We know that the container is isolated inside the Docker
+* Our System Host (our PC) cannot access the container directly, the only way to do this is by using `container exec` or `docker run` commands
+* Usually the a container run on a certain port, take an example redis run on port 6379, we can see the list of which port that our containers used to run its environments
+
+> To do this Docker use Port Forwarding technique, to forward from host port to open the container port
+
+```console
+docker container create --name <container-name> --publish <host-port>:<container-port> <image-name>:<image-tag>
+docker container create --name mynginx --publish 8080:80 nginx:latest
+```
+
+## 1.12. Bind Mount
+
+Bind mount is a technique to bind the our local storage with the container storage, let say you want to save the mongodb data from your mongodb container to your local, thus if you delete your container, the data will remain on your local storage. Example:
+
+```console
+
+```
+
 
 
 
