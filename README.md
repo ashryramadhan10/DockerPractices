@@ -373,9 +373,90 @@ docker container create --name mynginx --publish 8080:80 nginx:latest
 Bind mount is a technique to bind the our local storage with the container storage, let say you want to save the mongodb data from your mongodb container to your local, thus if you delete your container, the data will remain on your local storage. Example:
 
 ```console
-
+docker container create --name <container-name> --mount "type=bind,source=<src-folder-path>,destination=<dst-folder-path,readonly>" <image-name>:<image-tag>
 ```
 
+```console
+docker container create --name mongodata --mount "type=bind,source=/home/webscientia/mongo-data,destination=/data/db" --publish 27018:27017 --env MONGO_INITDB_ROOT_USERNAME=ashry --env MONGO_INITDB_ROOT_PASSWORD=ashry mongo:latest
+```
+
+## 1.13. Docker Volume
+
+Docker volume works similar to docker bind mount, but it's not using our local storage instead it will using the docker volume type.
+
+* Before we need to save our data to volume, we need to create the docker volume first using the command:
+
+```console
+docker volume create <volume-name>
+docker volume ls
+```
+
+`Note*`: 
+
+> Same as container we can't delete the image related to it if the container is running.
+
+> the Docker Volume we can't delete volume if it still used by the container.
+
+* How to delete the Docker Volume:
+
+```console
+docker volume rm <volume-name>
+```
+
+* How to use the volume with cointainer:
+
+```console
+docker container create --name mongovolume --mount "type=volume,source=<volume-name>,destination=/data/db" --publish 27019:27017 --env MONGO_INITDB_ROOT_USERNAME=ashry --env MONGO_INITDB_ROOT_PASSWORD=ashry mongo:latest
+```
+
+## 1.14. Backup Volume
+
+Unfortunately, there is no way that we can do for backup our Docker Volume directly. `But, we can take advantageous of the container ability to do the backup as .zip or .tar.gz`.
+
+Steps:
+1. Stop the container that connected to the volume we want to backup.
+2. create a new container with 2 mount: `volume` and `bind`
+```console
+docker container create --name nginxbackup --mount "type=bind,source=/home/user/mongodata,destination=/backup" --mount "type=volume,source=mongodata,destination=/data" nginx:1.25-alpine
+```
+3. Go into the container by executing the container:
+```console
+docker container exec -i -t nginxbackup /bin/sh
+```
+4. Check the environment and compress the folder of our data:
+```console
+ls -a
+tar cvf /backup/data.tar.gz /data/
+```
+5. Check your local host by checking into the backup folder and try to extract it
+```console
+tar xf /home/user/mongodata/data.tar.gz
+```
+6. Stop the container
+```console
+docker container stop nginxbackup
+```
+7. Remove the container
+```console
+docker container rm nginxbackup
+```
+
+* Alternative, we can do the backup using this command `docker container run` dan `--rm`, example:
+
+```console
+docker container run --rm --name nginxbackup --mount "type=bind,source=/home/user/mongodata,destination=/backup" --mount "type=volume,source=mongodata,destination=/data" nginx:1.25-alpine tar cvf /backup/data.tar.gz /data/
+```
+
+## 1.15. Restore Value
+
+Sometimes we just want to check our volume if it corrupted or not before restoring, then we can do that by these steps:
+
+Steps:
+1. Create new volume for restore location data backup
+2. Create a new container with 2 mounts using `bind` and `volume` from system host which has the backup files
+3. Restore the data by extracting the data from fhe system host to the new volume
+4. delete the container that we used for restoring the data
+5. The new volume containing the restored data
 
 
 
