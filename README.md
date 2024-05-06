@@ -462,6 +462,93 @@ Steps:
 sudo docker run --rm --name nginxrestore --mount "type=bind,source=/home/user/mongodata,destination=/backup" --mount "type=volume,source=mongorestore,destination=/data" --publish 8080:80 -v /home/user:/mybash -d nginx:alpine-perl /mybash/restoremongo.sh
 ```
 
+## 1.16. Docker Network
+
+Docker network is similar like ROS Host, we can connect each container within the same network.
+
+* For checking our network:
+```console
+docker network ls
+```
+
+* For creating a new network:
+```console
+docker network create --driver <driver-name> <network-name>
+docker network create --driver bridge mynetwork
+```
+
+* For deleting a network:
+```console
+docker network rm <network-name>
+```
+
+## 1.17. Container Network
+
+We are going to simulate an example to demonstrate communication between two or more containers in a network.
+
+MongoDB and MongoExpress, MongoDB is the database and MongoExpress is the MongoDBMS.
+
+* For creating container with network:
+```console
+docker container create --name <container-name> --network <network-name> <image-name>:<image-tag>
+```
+
+Steps:
+1. Create the network
+```console
+docker network create --driver bridge mongonetwork
+```
+2. Create container mongodb
+```console
+docker container create --name mymongodb --network mongonetwork --env MONGO_INITDB_ROOT_USERNAME=ashry --env MONGO_INITDB_ROOT_PASSWORD=ashry mongo:latest
+```
+3. Create container mongo-express
+```console
+docker container create --name mymongoexpress --network mongonetwork --publish 8081:8081 --env ME_CONFIG_MONGODB_URL="mongodb://ashry:ashry@mymongodb:27017/" mongo-express:latest
+```
+4. Start mongodb and mongo-express
+```console
+docker container start mymongodb
+docker container start mymongoexpress
+```
+
+* For disconecting container from network
+```console
+docker network disconnect <network-name> <container-name>
+docker network disconnect mongonetwork mymongodb
+```
+
+* For connecting container to network
+```console
+docker network connect <network-name> <container-name>
+docker network connect mongonetwork mymongodb
+```
+
+## 1.18. Inspect
+
+To look into details of our images, containers, etc.
+
+* For image details:
+```console
+docker image insect <image-name>
+```
+
+* For container details:
+```console
+docker container inspect <container-name>
+```
+
+* For volume details:
+```console
+docker volume inspect <volume-name>
+```
+
+* For network details:
+```console
+docker network inspect <network-name>
+```
+
+
 
 
 
