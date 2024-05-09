@@ -9,6 +9,10 @@
     - [:sparkles: CMD Instruction Example](#sparkles-cmd-instruction-example)
   - [4. LABEL Instruction](#4-label-instruction)
   - [5. ADD \& COPY Instructions](#5-add--copy-instructions)
+  - [6. .dockerignore file](#6-dockerignore-file)
+  - [7. Expose Instruction](#7-expose-instruction)
+  - [8. ENV Instruction](#8-env-instruction)
+  - [9. VOLUME Instruction](#9-volume-instruction)
 
 
 ## 1. [FROM Instruction](https://docs.docker.com/reference/dockerfile/#from)
@@ -203,3 +207,39 @@ In summary:
 
 - Use `COPY` for simple file or directory copying from the host machine into the Docker image.
 - Use `ADD` if you need to handle URL resources or automatically extract archives during the copy process. However, be cautious about the added complexity and potential security risks associated with `ADD`.
+
+## 6. .dockerignore file
+
+This file will ignore every files inside of it to be `COPY` or `ADD`. This file support `regex` as well and work very similar to `.gitignore` file.
+
+## 7. Expose Instruction
+
+The `EXPOSE` command tells to us that the container use at what port and using either `tcp` or `udp`, this is just information for the people who are going to use our images.
+
+```Dockerfile
+EXPOSE <port-number>/<protocol>
+EXPOSE 8080/tcp
+```
+
+## 8. ENV Instruction
+
+The `ENV` command is used for change the `environment_variable`. `ENV` variable can be accesses with `${varibale-name}` and can be changed every time when we want to create a container.
+
+```Dockerfile
+ENV <variable-name>:<variable-value>
+ENV DATA_DIR=/usr/local/var/postgres
+COPY /home/user/postgres ${DATA_DIR}
+
+docker run --env <key>=<value> <image-name>
+docker run --env DATA_DIR=/usr/local/var/posgres postgres
+```
+
+## 9. VOLUME Instruction
+
+This instruction is used for creating `docker volume` using dockerfile command. Every file on the `volume` will be copied to the `Docker Volume` even if we are not creating any Docker Volume while creating the coresponding `Docke Container`. This is appropriate in a use case such saving data inside a file.
+
+* We just need to define which folder we want to save into the volume.
+```Dockerfile
+VOLUME <path>/<folder>
+VOLUME ["path1/folder1", "path2/folder2", ".."]
+```
