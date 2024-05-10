@@ -13,6 +13,14 @@
   - [7. Expose Instruction](#7-expose-instruction)
   - [8. ENV Instruction](#8-env-instruction)
   - [9. VOLUME Instruction](#9-volume-instruction)
+  - [10. WORKDIR Instruction](#10-workdir-instruction)
+  - [11. USER Instruction](#11-user-instruction)
+  - [12. Argument Instruction](#12-argument-instruction)
+  - [13. HEALTHCHECK Instruction](#13-healthcheck-instruction)
+  - [14. ENTRYPOINT Instruction](#14-entrypoint-instruction)
+  - [15. Multi Stage Build](#15-multi-stage-build)
+  - [16. Dockerhub Registry](#16-dockerhub-registry)
+  - [17. Digital Ocean Container Registry](#17-digital-ocean-container-registry)
 
 
 ## 1. [FROM Instruction](https://docs.docker.com/reference/dockerfile/#from)
@@ -243,3 +251,144 @@ This instruction is used for creating `docker volume` using dockerfile command. 
 VOLUME <path>/<folder>
 VOLUME ["path1/folder1", "path2/folder2", ".."]
 ```
+
+## 10. WORKDIR Instruction
+
+The `WORKDIR` directory is where we determine our working directory (start path directory) to run `RUN`, `CMD`, `ENTRYPOINT`, `COPY` and `ADD`. That's mean we determine where to start our Docker Container folder.
+
+```Dockerfile
+WORKDIR /app # our workdir is set to /app
+WORKDIR Docker # now it becomes /app/Docker
+WORKDIR /home/app # now it changes to /home/app
+```
+
+```Dockerfile
+FROM alpine:3.14
+
+WORKDIR /app
+COPY src/hello.txt .
+```
+
+## 11. USER Instruction
+
+The `USER` command is used for changes the user of the linux distribution while running the docker image is running.
+
+By default, docker will use `root` user, for sometimes we don't want user `root` runs certain `apps`.
+
+```Dockerfile
+USER <user-name>
+USER <user-name>:<user-group>
+```
+
+```Dockerfile
+FROM golang:1.18-alpine
+
+RUN mkdir /app
+
+RUN addgroup -S ashrygroup
+RUN adduser -S -D -h /app ashryuser ashrygroup
+RUN chown -R ashryuser:ashrygroup /app
+USER ashryuser
+
+COPY main.go /app
+
+EXPOSE 8080
+CMD go run /app/main.go
+```
+
+## 12. Argument Instruction
+
+The `ARG` instruction is used for creating variable during build process. To access the `ARG` varibale, it's same like using `ENV` 
+
+* Build command:
+```console
+--build-arg <arg-key>=<arg-value>
+```
+
+* In Dockerfile:
+```Dockerfile
+ARG <variable-key>=<variable-value>
+```
+
+## 13. HEALTHCHECK Instruction
+
+The `HEALTHCHECK` command is used for checking whether the our Docker Container runs correctly or not. The starting value of the the `HEALTHCHECK` command is `starting`, if the container running successfully it will be changed to `healthy` if not `unhealthy`.
+
+```Dockerfile
+HEALTHCHECK NONE
+HEALTHCHECK [OPTIONS] CMD
+```
+OPTIONS:
+* --interval=DURATION (default: 30s)
+* --timeout=DURATION (default: 30s)
+* --start-period=DURATION (default: 0s)
+* --retries=N (default: 3)
+
+```Dockerfile
+HEALTHCHECK --interval=5s --start-period=5s CMD curl -f http://localhost:8080/health
+```
+
+We can see that we set `--interval` to `5s` so that's mean we will run the `CMD` for ever 5 seconds, the start period will be at 5s.
+
+We can check it using `docker container ls` below `STATUS` section.
+
+## 14. ENTRYPOINT Instruction
+
+The `ENTRYPOINT` command is used for determining which executable file our container will run. Usually, `ENTRYPOINT` is strongly related with `CMD` instruction.
+
+```Dockerfile
+ENTRYPOINT ["executable", "param1", "param2"]
+ENTRYPOINT executable param1 param2
+```
+
+When we are using `CMD ["param1", "param2"]` the param will be sent to `ENTRYPOINT` executable.
+
+```Dockerfile
+FROM golang:1.18-aline
+
+RUN mkdir /app/
+COPY main.go /app/
+
+EXPOSE 8080
+ENTRYPOINT ["go", "run"]
+CMD ["/app/main.go"]
+```
+
+## 15. Multi Stage Build
+
+When we create an image from base image that has really big size, our image will have same amount of size with that `base image`.
+
+Therefore, always use only `base image` that we needed for our image.
+
+There are a technique to keep our image small by `compiling` or `build` our necessary/programs first on local then `COPY` it into our `image`.
+
+> Let say we compiled first our `.cpp` programs to `.exe` then just uploading the `compiled` version of our programs, then it will be more space-saving, because we don't need to install `cpp` compiler and compile our `.cpp` inside our `image`.
+
+Docker has a `Multi Stage Build` feature, we can take an advantages this feature for the case above.
+
+> Every `FROM` is a build stage.
+
+```Dockerfile
+FROM golang:1.18-alpine as builder
+WORKDIR /app/
+COPY main.go .
+RUN go build -o /app/main main.go
+
+FROM alpine:3
+WORKDIR /app/
+COPY --from=builder /app/main ./
+CMD /app/main
+```
+
+## 16. Dockerhub Registry
+
+After we are creating our own images, we can publish our docker images to Dockerhub Registry.
+
+You will need:
+* Dockerhub Access Token
+* Docker login using: `docker login -u <username>`
+* Docker push: `docker push <registry-name>/<image-name>`
+
+## 17. Digital Ocean Container Registry
+
+This is one of the popular cloud provider for container registry. You just need to set the `Docker Config`, it's different from Dockerhub that need login credential to push our docker image.
