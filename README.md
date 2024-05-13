@@ -1,4 +1,5 @@
 # DockerPractices
+
 Docker Practices
 
 ## 1.1. Docker Commands
@@ -94,6 +95,7 @@ docker container rm <container-id>
 ### 1.2.1. Pulling an Image
 
 > for pulling an image:
+
 ```console
 dokcer pull <image-name>:<image-version (optional) >
 ```
@@ -101,6 +103,7 @@ dokcer pull <image-name>:<image-version (optional) >
 ### 1.2.2. Listing Images
 
 > for listing images:
+
 ```console
 docker images
 ```
@@ -112,16 +115,19 @@ docker images --filter "reference=<repository-name>"
 ### 1.2.3. Removing Images
 
 > for removing images:
+
 ```console
 docker image rm <image-name>
 ```
 
 > for remove all stopped containers:
+
 ```console
 docker container prune
 ```
 
 > for remove all unused images
+
 ```console
 docker image prune -a
 ```
@@ -131,10 +137,13 @@ docker image prune -a
 ### 1.3.1. Private Docker Registries
 
 * Names start with the url of the private registry:
+
 ```console
 dockerhub.myprivateregistry.com/classify_spam
 ```
+
 * Pull the image:
+
 ```console
 docker pull dockerhub.myprivateregistry.com/classify_spam:v1
 ```
@@ -146,6 +155,7 @@ docker image push <image-name>
 ```
 
 * For pushing to a specific registry -> name of the image need to start with the registry url:
+
 ```shell
 # give tag to the image first
 docker tag classify_spam:v1 dockerhub.myprivateregistry.com/classify_spam:v1
@@ -212,6 +222,7 @@ RUN apt-get install -y python3
 ### 1.4.4. Managing Files in Your Image
 
 * `COPY`ing files to an image, the `COPY` instruction copies files from our local machine into the image we're building.
+
 ```Dockerfile
 COPY <src-path-on-host> <dst-path-on-image>
 COPY /projects/pipeline_v3/pipeline.py /app/pipeline.py
@@ -225,6 +236,7 @@ COPY /projects/pipeline_v3/ /app/
 ```
 
 * Downloading files, instead of copying files from a local directory, files are often downloaded in the image build.
+
 ```Dockerfile
 # Download the file
 RUN curl <file-url> -o <destination>
@@ -236,7 +248,8 @@ RUN unzip <dest-folder>/<filename>.zip
 RUN rm <copy_directory>/<filename>.zip
 ```
 
-* Downloading files efficiently 
+* Downloading files efficiently
+
 ```Dockerfile
 # 1. Each instruction that downloads files adds to the total size of the image.
 # 2. Even if the files are later deleted.
@@ -252,16 +265,19 @@ RUN curl <file_download_url> -o <destination_directory>/<filename>.zip \
 Using `CMD` command to execute shell command.
 
 Starting an image:
+
 ```console
 docker run <image>
 ```
 
 Starting an image with custom start command:
+
 ```console
 docker run <image> <shell-command>
 ```
 
 Starting an image interactively with custom start command:
+
 ```console
 docker run -it <image> <shell-command>
 ```
@@ -283,6 +299,7 @@ COPY /home/repl/project /home/repl/projects/pipeline_final
 ```
 
 * Using `WORKDIR`:
+
 ```Dockerfile
 FROM ubuntu:22.04
 RUN useradd -m repl
@@ -295,6 +312,7 @@ COPY /home/repl/project projects/pipeline_final
 ## 1.8. Variables in Dockerfile
 
 * Using `ARG` command:
+
 ```Dockerfile
 # ARG <variable-name>=<variable-value>
 FROM ubuntu
@@ -304,41 +322,48 @@ RUN apt-get install -y python3-dev=$python_version
 ```
 
 * Setting `ARG` at build time:
+
 ```Dockerfile
 FROM ubuntu
 ARG project_folder=/projects/pipeline_v3
 COPY /local/project/files $project_folder
 COPY /local/project/test_files $project_folder/tests
 ```
+
 On terminal:
+
 ```console
 docker build --build-arg project_folder=/repl/pipeline .
 ```
 
 * Using `ENV` command, still accessible in runtime:
+
 ```Dockerfile
 # ENV <variable-name>=<variable-value>
 ENV DB_USER=pipeline_user
 ```
 
 To use in Dockerfile or at runtime `$DB_USER`, for example:
+
 ```Dockerfile
 CMD psql -U $DB_USER
 ```
 
 * Setting a directory to be used at runtime:
+
 ```Dockerfile
 ENV DATA_DIR=/usr/local/var/postgres
 ENV MODE production
 ```
 
 * Setting or replacing varibale at runtime:
+
 ```console
 docker run --env <key>=<value> <image-name>
 docker run --env POSTGRES_USER=test_db --env POSTGRES_PASSWORD=test_db postgres
 ```
 
-## 1.9. Container Resource Limit
+## 1.9. Container Stats
 
 ```console
 docker container stats
@@ -391,7 +416,7 @@ docker volume create <volume-name>
 docker volume ls
 ```
 
-`Note*`: 
+`Note*`:
 
 > Same as container we can't delete the image related to it if the container is running.
 
@@ -414,29 +439,41 @@ docker container create --name mongovolume --mount "type=volume,source=<volume-n
 Unfortunately, there is no way that we can do for backup our Docker Volume directly. `But, we can take advantageous of the container ability to do the backup as .zip or .tar.gz`.
 
 Steps:
+
 1. Stop the container that connected to the volume we want to backup.
 2. create a new container with 2 mount: `volume` and `bind`
+
 ```console
 docker container create --name nginxbackup --mount "type=bind,source=/home/user/mongodata,destination=/backup" --mount "type=volume,source=mongodata,destination=/data" nginx:1.25-alpine
 ```
+
 3. Go into the container by executing the container:
+
 ```console
 docker container exec -i -t nginxbackup /bin/sh
 ```
+
 4. Check the environment and compress the folder of our data:
+
 ```console
 ls -a
 tar cvf /backup/data.tar.gz /data/
 ```
+
 5. Check your local host by checking into the backup folder and try to extract it
+
 ```console
 tar xf /home/user/mongodata/data.tar.gz
 ```
+
 6. Stop the container
+
 ```console
 docker container stop nginxbackup
 ```
+
 7. Remove the container
+
 ```console
 docker container rm nginxbackup
 ```
@@ -452,6 +489,7 @@ docker container run --rm --name nginxbackup --mount "type=bind,source=/home/use
 Sometimes we just want to check our volume if it corrupted or not before restoring, then we can do that by these steps:
 
 Steps:
+
 1. Create new volume for restore location data backup
 2. Create a new container with 2 mounts using `bind` and `volume` from system host which has the backup files
 3. Restore the data by extracting the data from fhe system host to the new volume
@@ -467,17 +505,20 @@ sudo docker run --rm --name nginxrestore --mount "type=bind,source=/home/user/mo
 Docker network is similar like ROS Host, we can connect each container within the same network.
 
 * For checking our network:
+
 ```console
 docker network ls
 ```
 
 * For creating a new network:
+
 ```console
 docker network create --driver <driver-name> <network-name>
 docker network create --driver bridge mynetwork
 ```
 
 * For deleting a network:
+
 ```console
 docker network rm <network-name>
 ```
@@ -489,36 +530,47 @@ We are going to simulate an example to demonstrate communication between two or 
 MongoDB and MongoExpress, MongoDB is the database and MongoExpress is the MongoDBMS.
 
 * For creating container with network:
+
 ```console
 docker container create --name <container-name> --network <network-name> <image-name>:<image-tag>
 ```
 
 Steps:
+
 1. Create the network
+
 ```console
 docker network create --driver bridge mongonetwork
 ```
+
 2. Create container mongodb
+
 ```console
 docker container create --name mymongodb --network mongonetwork --env MONGO_INITDB_ROOT_USERNAME=ashry --env MONGO_INITDB_ROOT_PASSWORD=ashry mongo:latest
 ```
+
 3. Create container mongo-express
+
 ```console
 docker container create --name mymongoexpress --network mongonetwork --publish 8081:8081 --env ME_CONFIG_MONGODB_URL="mongodb://ashry:ashry@mymongodb:27017/" mongo-express:latest
 ```
+
 4. Start mongodb and mongo-express
+
 ```console
 docker container start mymongodb
 docker container start mymongoexpress
 ```
 
 * For disconecting container from network
+
 ```console
 docker network disconnect <network-name> <container-name>
 docker network disconnect mongonetwork mymongodb
 ```
 
 * For connecting container to network
+
 ```console
 docker network connect <network-name> <container-name>
 docker network connect mongonetwork mymongodb
@@ -529,26 +581,25 @@ docker network connect mongonetwork mymongodb
 To look into details of our images, containers, etc.
 
 * For image details:
+
 ```console
 docker image insect <image-name>
 ```
 
 * For container details:
+
 ```console
 docker container inspect <container-name>
 ```
 
 * For volume details:
+
 ```console
 docker volume inspect <volume-name>
 ```
 
 * For network details:
+
 ```console
 docker network inspect <network-name>
 ```
-
-
-
-
-
