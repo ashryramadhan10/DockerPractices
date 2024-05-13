@@ -1,0 +1,29 @@
+version: "0.0.1"
+
+services:
+  # nginx port1
+  nginx-port1:
+    image: nginx:alpine-perl
+    container_name: nginx-port1
+    ports:
+      - protocol: tcp
+        published: 8080
+        target: 80
+
+  # nginx port2
+  nginx-port2:
+    image: nginx:alpine-perl
+    container_name: nginx-port2
+    ports:
+      - "8081:80"
+
+  # mongodb
+  mongodb-example:
+    image: mongo:latest
+    container_name: mongo-example
+    ports:
+        - "27017:27017"
+    environment:
+        MONGO_INITDB_ROOT_USERNAME: ashry
+        MONGO_INITDB_ROOT_PASSWORD: ashry
+        MONGO_INITDB_DATABASE: admin
