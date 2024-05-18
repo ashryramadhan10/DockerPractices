@@ -506,6 +506,11 @@ Steps:
 sudo docker run --rm --name nginxrestore --mount "type=bind,source=/home/user/mongodata,destination=/backup" --mount "type=volume,source=mongorestore,destination=/data" --publish 8080:80 -v /home/user:/mybash -d nginx:alpine-perl /mybash/restoremongo.sh
 ```
 
+The `restoremongo.sh`:
+```shell
+cd ~/backup && tar xf data.tar.gz -C ../data --strip 1
+```
+
 ## 1.16. Docker Network
 
 Docker network is similar like ROS Host, we can connect each container within the same network.
