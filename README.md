@@ -2,10 +2,15 @@
 
 Docker Practices
 
-How to install Docker on Windows:
+* How to install Docker on Windows:
 
 ```console
 start /w "" "Docker Desktop Installer.exe" install -accept-license  --installation-dir=D:\Programs\Docker --wsl-default-data-root=D:\Programs\DockerData
+```
+
+* How to check if your container connected to the internet:
+```console
+curl https://www.google.com
 ```
 
 ## 1.1. Docker Commands
