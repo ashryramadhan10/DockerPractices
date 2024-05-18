@@ -2,6 +2,12 @@
 
 Docker Practices
 
+How to install Docker on Windows:
+
+```console
+start /w "" "Docker Desktop Installer.exe" install -accept-license  --installation-dir=D:\Programs\Docker --wsl-default-data-root=D:\Programs\DockerData
+```
+
 ## 1.1. Docker Commands
 
 ### 1.1.1. Build Command
