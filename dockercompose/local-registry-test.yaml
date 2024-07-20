@@ -1,0 +1,14 @@
+version: "0.0.1"
+
+services:
+  hello-world:
+    image: localhost:5000/hello-world-python
+    container_name: hello-world-python
+    deploy:
+      resources:
+        reservations:
+          cpus: "0.50"
+          memory: 50M
+        limits:
+          cpus: "0.50"
+          memory: 100M

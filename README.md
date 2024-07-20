@@ -13,6 +13,11 @@ start /w "" "Docker Desktop Installer.exe" install -accept-license  --installati
 curl https://www.google.com
 ```
 
+Setting your private registry:
+```console
+docker run -d --name registry --mount "type=bind,source=<your_local_path>,destination=/var/lib/registry" -p 5000:5000 --restart always registry:latest
+```
+
 ## 1.1. Docker Commands
 
 ### 1.1.1. Build Command
